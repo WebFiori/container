@@ -18,6 +18,18 @@ A lightweight dependency injection container for PHP with automatic constructor 
   </a>
 </p>
 
+
+## Supported PHP Versions
+
+This library requires **PHP 8.1 or higher**.
+
+|                                                                                        Build Status                                                                                        |
+|:------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+| <a target="_blank" href="https://github.com/WebFiori/container/actions/workflows/php81.yaml"><img src="https://github.com/WebFiori/container/actions/workflows/php81.yaml/badge.svg?branch=main"></a>  |
+| <a target="_blank" href="https://github.com/WebFiori/container/actions/workflows/php82.yaml"><img src="https://github.com/WebFiori/container/actions/workflows/php82.yaml/badge.svg?branch=main"></a>  |
+| <a target="_blank" href="https://github.com/WebFiori/container/actions/workflows/php83.yaml"><img src="https://github.com/WebFiori/container/actions/workflows/php83.yaml/badge.svg?branch=main"></a>  |
+| <a target="_blank" href="https://github.com/WebFiori/container/actions/workflows/php84.yaml"><img src="https://github.com/WebFiori/container/actions/workflows/php84.yaml/badge.svg?branch=main"></a>  |
+
 ## Features
 
 - **Instance-based API** — fully testable, multiple containers can coexist
