@@ -8,8 +8,8 @@ require_once __DIR__.'/../vendor/autoload.php';
 use WebFiori\Container\Container;
 
 class DatabaseConnection {
-    private static int $instanceCount = 0;
     public int $id;
+    private static int $instanceCount = 0;
 
     public function __construct() {
         self::$instanceCount++;
@@ -33,7 +33,7 @@ $container->singleton(DatabaseConnection::class, DatabaseConnection::class);
 
 $db1 = $container->make(DatabaseConnection::class);
 $db2 = $container->make(DatabaseConnection::class);
-echo "Same instance? " . ($db1 === $db2 ? 'Yes' : 'No') . "\n";
+echo "Same instance? ".($db1 === $db2 ? 'Yes' : 'No')."\n";
 // Output:
 // DatabaseConnection #1 created
 // Same instance? Yes

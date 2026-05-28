@@ -23,6 +23,12 @@ class ContainerFacade {
      */
     private static ?Container $inst = null;
     /**
+     * @see Container::bind()
+     */
+    public static function bind(string $abstract, string|callable $concrete): void {
+        self::getInstance()->bind($abstract, $concrete);
+    }
+    /**
      * Returns the default Container instance, creating it lazily if needed.
      *
      * @return Container
@@ -35,24 +41,10 @@ class ContainerFacade {
         return self::$inst;
     }
     /**
-     * Replaces the default Container instance.
-     *
-     * @param Container $container The container instance to use as default.
+     * @see Container::has()
      */
-    public static function setInstance(Container $container): void {
-        self::$inst = $container;
-    }
-    /**
-     * @see Container::bind()
-     */
-    public static function bind(string $abstract, string|callable $concrete): void {
-        self::getInstance()->bind($abstract, $concrete);
-    }
-    /**
-     * @see Container::singleton()
-     */
-    public static function singleton(string $abstract, string|callable $concrete): void {
-        self::getInstance()->singleton($abstract, $concrete);
+    public static function has(string $abstract): bool {
+        return self::getInstance()->has($abstract);
     }
     /**
      * @see Container::instance()
@@ -67,12 +59,6 @@ class ContainerFacade {
         return self::getInstance()->make($abstract);
     }
     /**
-     * @see Container::has()
-     */
-    public static function has(string $abstract): bool {
-        return self::getInstance()->has($abstract);
-    }
-    /**
      * @see Container::remove()
      */
     public static function remove(string $abstract): void {
@@ -83,5 +69,19 @@ class ContainerFacade {
      */
     public static function reset(): void {
         self::$inst = null;
+    }
+    /**
+     * Replaces the default Container instance.
+     *
+     * @param Container $container The container instance to use as default.
+     */
+    public static function setInstance(Container $container): void {
+        self::$inst = $container;
+    }
+    /**
+     * @see Container::singleton()
+     */
+    public static function singleton(string $abstract, string|callable $concrete): void {
+        self::getInstance()->singleton($abstract, $concrete);
     }
 }

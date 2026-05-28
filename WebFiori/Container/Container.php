@@ -45,18 +45,14 @@ class Container {
         ];
     }
     /**
-     * Bind an abstract type as a singleton.
+     * Check if a binding or instance exists for the given type.
      *
-     * The first call to make() creates the instance; subsequent calls return the same instance.
+     * @param string $abstract The interface or class name.
      *
-     * @param string $abstract The interface or class name to bind.
-     * @param string|callable $concrete The implementation class name or a callable factory.
+     * @return bool True if the container can resolve the type.
      */
-    public function singleton(string $abstract, string|callable $concrete): void {
-        $this->bindings[$abstract] = [
-            'concrete' => $concrete,
-            'singleton' => true,
-        ];
+    public function has(string $abstract): bool {
+        return isset($this->instances[$abstract]) || isset($this->bindings[$abstract]);
     }
     /**
      * Register an existing instance in the container.
@@ -99,16 +95,6 @@ class Container {
         return $this->build($abstract);
     }
     /**
-     * Check if a binding or instance exists for the given type.
-     *
-     * @param string $abstract The interface or class name.
-     *
-     * @return bool True if the container can resolve the type.
-     */
-    public function has(string $abstract): bool {
-        return isset($this->instances[$abstract]) || isset($this->bindings[$abstract]);
-    }
-    /**
      * Remove a binding and its cached instance.
      *
      * @param string $abstract The interface or class name to remove.
@@ -122,6 +108,20 @@ class Container {
     public function reset(): void {
         $this->bindings = [];
         $this->instances = [];
+    }
+    /**
+     * Bind an abstract type as a singleton.
+     *
+     * The first call to make() creates the instance; subsequent calls return the same instance.
+     *
+     * @param string $abstract The interface or class name to bind.
+     * @param string|callable $concrete The implementation class name or a callable factory.
+     */
+    public function singleton(string $abstract, string|callable $concrete): void {
+        $this->bindings[$abstract] = [
+            'concrete' => $concrete,
+            'singleton' => true,
+        ];
     }
     /**
      * Build an instance from a concrete class name or callable.
