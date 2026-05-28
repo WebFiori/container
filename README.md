@@ -1,6 +1,33 @@
 # WebFiori Container
 
-A lightweight dependency injection container for PHP with auto-resolution.
+A lightweight dependency injection container for PHP with automatic constructor resolution.
+
+<p align="center">
+  <a href="https://github.com/WebFiori/container/actions"><img src="https://github.com/WebFiori/container/actions/workflows/php84.yaml/badge.svg?branch=main"></a>
+  <a href="https://codecov.io/gh/WebFiori/container">
+    <img src="https://codecov.io/gh/WebFiori/container/branch/main/graph/badge.svg" />
+  </a>
+  <a href="https://sonarcloud.io/dashboard?id=WebFiori_container">
+      <img src="https://sonarcloud.io/api/project_badges/measure?project=WebFiori_container&metric=alert_status" />
+  </a>
+  <a href="https://github.com/WebFiori/container/releases">
+      <img src="https://img.shields.io/github/release/WebFiori/container.svg?label=latest" />
+  </a>
+  <a href="https://packagist.org/packages/webfiori/container">
+      <img src="https://img.shields.io/packagist/dt/webfiori/container?color=light-green">
+  </a>
+</p>
+
+## Features
+
+- **Instance-based API** — fully testable, multiple containers can coexist
+- **Static facade** (`ContainerFacade`) for quick usage without DI
+- **Auto-resolution** of constructor dependencies via reflection
+- **Singleton support** — resolve once, return same instance on subsequent calls
+- **Callable factories** for complex construction logic
+- **Nullable parameter handling** — resolves to null if dependency is unbound
+- **Default value support** — uses parameter defaults for unresolvable scalar types
+- **Zero dependencies** — requires only PHP 8.1+
 
 ## Installation
 
