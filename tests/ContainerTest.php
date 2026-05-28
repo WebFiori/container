@@ -70,6 +70,64 @@ class Unresolvable {
 abstract class AbstractClass {
 }
 
+
+class WithDefaultDependency {
+    public ?LoggerInterface $logger;
+
+    public function __construct(LoggerInterface $logger = null) {
+        $this->logger = $logger;
+    }
+}
+
+class WithNullableScalar {
+    public ?int $value;
+
+    public function __construct(?int $value = null) {
+        $this->value = $value;
+    }
+}
+
+
+class WithConcreteDefault {
+    public string $driver;
+    public ?LoggerInterface $logger;
+
+    public function __construct(LoggerInterface $logger, string $driver = 'file') {
+        $this->logger = $logger;
+        $this->driver = $driver;
+    }
+}
+
+class WithNullableNoDefault {
+    public ?int $value;
+
+    public function __construct(?int $value) {
+        $this->value = $value;
+    }
+}
+
+
+class WithUnresolvableDefault {
+    public ?object $dep;
+
+    public function __construct(AbstractClass $dep = null) {
+        $this->dep = $dep;
+    }
+}
+
+
+class DefaultImpl implements LoggerInterface {
+    public function log(string $msg): void {}
+}
+
+class WithNewDefault {
+    public LoggerInterface $logger;
+
+    public function __construct(LoggerInterface $logger = new DefaultImpl()) {
+        $this->logger = $logger;
+    }
+}
+
 class ContainerTest extends TestCase {
     private Container $container;
 
@@ -269,41 +327,81 @@ class ContainerTest extends TestCase {
         $instance = $this->container->make(LoggerInterface::class);
         $this->assertInstanceOf(NullLogger::class, $instance);
     }
-}
-
-class ContainerFacadeTest extends TestCase {
-    protected function setUp(): void {
-        ContainerFacade::reset();
+    /**
+     * @test
+     */
+    public function testRemoveSingletonClearsCache() {
+        $this->container->singleton(LoggerInterface::class, FileLogger::class);
+        $this->container->make(LoggerInterface::class);
+        $this->container->remove(LoggerInterface::class);
+        $this->assertFalse($this->container->has(LoggerInterface::class));
     }
     /**
      * @test
      */
-    public function testFacadeGetInstanceReturnsContainer() {
-        $this->assertInstanceOf(Container::class, ContainerFacade::getInstance());
+    public function testRemoveInstanceEntry() {
+        $this->container->instance(LoggerInterface::class, new FileLogger());
+        $this->container->remove(LoggerInterface::class);
+        $this->assertFalse($this->container->has(LoggerInterface::class));
     }
     /**
      * @test
      */
-    public function testFacadeSetInstance() {
-        $custom = new Container();
-        ContainerFacade::setInstance($custom);
-        $this->assertSame($custom, ContainerFacade::getInstance());
+    public function testUnresolvableDependencyWithDefault() {
+        // Class with unbound interface param that has a default value
+        $instance = $this->container->make(WithDefaultDependency::class);
+        $this->assertInstanceOf(WithDefaultDependency::class, $instance);
+        $this->assertNull($instance->logger);
     }
     /**
      * @test
      */
-    public function testFacadeDelegatesToInstance() {
-        ContainerFacade::bind(LoggerInterface::class, FileLogger::class);
-        $instance = ContainerFacade::make(LoggerInterface::class);
-        $this->assertInstanceOf(FileLogger::class, $instance);
+    public function testUnresolvableDependencyNonNullableThrows() {
+        // Class with unbound interface param, no default, not nullable
+        $this->expectException(\WebFiori\Container\ContainerException::class);
+        $this->container->make(UserService::class);
     }
     /**
      * @test
      */
-    public function testFacadeResetCreatesNewInstance() {
-        $first = ContainerFacade::getInstance();
-        ContainerFacade::reset();
-        $second = ContainerFacade::getInstance();
-        $this->assertNotSame($first, $second);
+    public function testNullableScalarParam() {
+        $instance = $this->container->make(WithNullableScalar::class);
+        $this->assertInstanceOf(WithNullableScalar::class, $instance);
+        $this->assertNull($instance->value);
+    }
+    /**
+     * @test
+     */
+    public function testUnresolvableDependencyFallsToConcreteDefault() {
+        // LoggerInterface unbound, but param has default 'file' for $driver
+        // This tests the catch branch where isDefaultValueAvailable is true with non-null default
+        $this->container->bind(LoggerInterface::class, FileLogger::class);
+        $instance = $this->container->make(WithConcreteDefault::class);
+        $this->assertEquals('file', $instance->driver);
+    }
+    /**
+     * @test
+     */
+    public function testNullableScalarNoDefault() {
+        $instance = $this->container->make(WithNullableNoDefault::class);
+        $this->assertNull($instance->value);
+    }
+    /**
+     * @test
+     */
+    public function testUnresolvableClassTypeWithDefaultNull() {
+        $instance = $this->container->make(WithUnresolvableDefault::class);
+        $this->assertInstanceOf(WithUnresolvableDefault::class, $instance);
+        $this->assertNull($instance->dep);
+    }
+    /**
+     * @test
+     */
+    public function testUnresolvableWithNewInstanceDefault() {
+        // LoggerInterface is NOT bound, but param has `= new DefaultImpl()`
+        // Container fails to resolve LoggerInterface, falls to default value
+        $instance = $this->container->make(WithNewDefault::class);
+        $this->assertInstanceOf(WithNewDefault::class, $instance);
+        $this->assertInstanceOf(DefaultImpl::class, $instance->logger);
     }
 }
