@@ -3,3 +3,4 @@
 /.github export-ignore
 /.gitignore export-ignore
 /sonar-project.properties export-ignore
+/examples export-ignore
