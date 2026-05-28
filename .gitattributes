@@ -1,0 +1,5 @@
+/tests export-ignore
+/CHANGELOG.md export-ignore
+/.github export-ignore
+/.gitignore export-ignore
+/sonar-project.properties export-ignore
