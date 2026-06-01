@@ -128,6 +128,10 @@ class WithNewDefault {
     }
 }
 
+class NeedsStdClass {
+    public function __construct(public \stdClass $dep) {}
+}
+
 class ContainerTest extends TestCase {
     private Container $container;
 
@@ -403,5 +407,78 @@ class ContainerTest extends TestCase {
         $instance = $this->container->make(WithNewDefault::class);
         $this->assertInstanceOf(WithNewDefault::class, $instance);
         $this->assertInstanceOf(DefaultImpl::class, $instance->logger);
+    }
+    /**
+     * @test
+     */
+    public function testSingletonNotSharedAcrossAbstracts() {
+        $this->container->singleton('a', \stdClass::class);
+        $this->container->singleton('b', \stdClass::class);
+        $instanceA = $this->container->make('a');
+        $instanceB = $this->container->make('b');
+        $this->assertNotSame($instanceA, $instanceB);
+    }
+    /**
+     * @test
+     */
+    public function testBindAfterSingletonOverrides() {
+        $this->container->singleton(\stdClass::class, \stdClass::class);
+        $first = $this->container->make(\stdClass::class);
+        // Remove clears the cached singleton
+        $this->container->remove(\stdClass::class);
+        $this->container->bind(\stdClass::class, \stdClass::class);
+        $second = $this->container->make(\stdClass::class);
+        $third = $this->container->make(\stdClass::class);
+        // After override to bind, each call creates new instance
+        $this->assertNotSame($second, $third);
+    }
+    /**
+     * @test
+     */
+    public function testFactoryCalledEachTimeForBind() {
+        $count = 0;
+        $this->container->bind('counter', function () use (&$count) {
+            $count++;
+            return new \stdClass();
+        });
+        $this->container->make('counter');
+        $this->container->make('counter');
+        $this->container->make('counter');
+        $this->assertEquals(3, $count);
+    }
+    /**
+     * @test
+     */
+    public function testFactoryCalledOnceForSingleton() {
+        $count = 0;
+        $this->container->singleton('counter', function () use (&$count) {
+            $count++;
+            return new \stdClass();
+        });
+        $this->container->make('counter');
+        $this->container->make('counter');
+        $this->container->make('counter');
+        $this->assertEquals(1, $count);
+    }
+    /**
+     * @test
+     */
+    public function testResetClearsBothBindingsAndInstances() {
+        $this->container->bind('x', \stdClass::class);
+        $this->container->instance('y', new \stdClass());
+        $this->assertTrue($this->container->has('x'));
+        $this->assertTrue($this->container->has('y'));
+        $this->container->reset();
+        $this->assertFalse($this->container->has('x'));
+        $this->assertFalse($this->container->has('y'));
+    }
+    /**
+     * @test
+     */
+    public function testAutoResolutionPreservesConstructorArgs() {
+        // Verify that auto-resolved dependencies get correct instances
+        $this->container->instance(\stdClass::class, (object)['name' => 'injected']);
+        $obj = $this->container->make(NeedsStdClass::class);
+        $this->assertEquals('injected', $obj->dep->name);
     }
 }
