@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.1](https://github.com/WebFiori/container/compare/v1.0.0...v1.0.1) (2026-06-01)
+
+
+### Miscellaneous Chores
+
+* align CI with ecosystem baseline ([3879771](https://github.com/WebFiori/container/commit/3879771dcbc402373a93a1bede6b6c3638a9d953))
+* align CI with ecosystem baseline ([4e0b314](https://github.com/WebFiori/container/commit/4e0b314b165d18c89b7e0b52f1df7e42404c14ef))
+
 ## 1.0.0 (2026-05-28)
 
 
